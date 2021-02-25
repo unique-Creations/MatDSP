@@ -34,7 +34,7 @@ classdef sequence
 		
 		function y = flip(x)
 			% FLIP Flip a Matlab sequence structure, x, so y = x[-n]
-            f = fliplr(x.data); %fliplr flips the values by row from left to right
+            f = [x.data(end:-1:1)]; 
             y = sequence(f,-(x.offset+length(x.data)-1)); %calculate the x value of the first element of the matrix
             return
 		end
@@ -82,8 +82,8 @@ classdef sequence
             sizey = [resulty zeros(1 ,resultx2-resulty2)];
             z = sequence((sizex - sizey), min(x.offset, y.offset));
         end
-		function z = times(x, y)
-			if isa(x, 'sequence') == 0 %If x or y = int; iterate matrix; multiply int to each
+        function z = times(x, y)
+            if isa(x, 'sequence') == 0 %If x or y = int; iterate matrix; multiply int to each
                 result = y.data * x;
                 z = sequence(result,y.offset);
                 return;
@@ -99,17 +99,45 @@ classdef sequence
             sizex = [resultx zeros(1 ,resulty2-resultx2)];
             sizey = [resulty zeros(1 ,resultx2-resulty2)];
             z = sequence((sizex .* sizey), min(x.offset, y.offset));
-		end
+        end
 		
 		function stem(x)
 			% STEM Display a Matlab sequence, x, using a stem plot.
            n = x.offset + (0:length(x.data)-1); %adding the offset to the length of the matrix displays only the relevant values
            stem(n,x.data) 
         end
-        function z = conv(x, y)
-            zero(length(x.data), length(x.data)+length(y.data)-1);
-            z = sequence(x.data,y.offset);
-            
+        
+        function y = conv(x, h)
+            % CONV Convolve two finite-length MatLab sequence objects, x
+            % and h. RETURN sequence object, y.
+            lengthy = length(x.data)+length(h.data)-1;
+            yo = x.offset+h.offset;
+            if length(x.data) < length(h.data) % if x is smaller than h else
+                mtx = zeros(length(x.data), lengthy); %Create matrix needed for toeplit matrix
+                for i = 1:length(x.data)
+                    mtx(i , i : (length(h.data)+(i-1))) = h.data; %Add h sequence to toeplit matrix
+                    result = x.data * mtx;
+                end
+                y = sequence(result,yo);
+                return;
+            else
+                mtx = zeros(length(h.data), lengthy); %Create matrix needed for toeplit matrix
+                for i = 1:length(h.data)
+                    mtx(i , i : (length(x.data)+(i-1))) = x.data; %Add x sequence to toeplit matrix
+                    result = h.data * mtx;
+                end
+                y = sequence(result,yo);
+                return;
+            end 
+        end
+        
+        function y = conv_rt(x,h)
+           
+            y = sequence(x.data,h.offset);
+        end
+        
+        function x = deconv(y,h)
+            x = sequence(y.data,h.offest);
         end
 	end
 end
