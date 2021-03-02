@@ -115,15 +115,15 @@ classdef sequence
             if length(x.data) < length(h.data) % if x is smaller than h else
                 mtx = zeros(length(x.data), lengthy); %Create matrix needed for toeplit matrix
                 for i = 1:length(x.data)
-                    mtx(i , i : (length(h.data)+(i-1))) = h.data; %Add h sequence to toeplit matrix
+                    mtx(i , i : (length(h.data)+(i-1))) = h.data; %Add h sequence to toeplitz matrix
                     result = x.data * mtx;
                 end
                 y = sequence(result,yo);
                 return;
             else
-                mtx = zeros(length(h.data), lengthy); %Create matrix needed for toeplit matrix
+                mtx = zeros(length(h.data), lengthy); %Create matrix needed for toeplitz matrix
                 for i = 1:length(h.data)
-                    mtx(i , i : (length(x.data)+(i-1))) = x.data; %Add x sequence to toeplit matrix
+                    mtx(i , i : (length(x.data)+(i-1))) = x.data; %Add x sequence to toeplitz matrix
                     result = h.data * mtx;
                 end
                 y = sequence(result,yo);
@@ -132,7 +132,17 @@ classdef sequence
         end
         
         function x = deconv(y,h)
-            x = sequence(y.data,h.offest);
+            lengthx = length(y.data)-length(h.data)+1;
+             mtx = zeros(length(h.data), lengthx); 
+             mtxy = zeros(length(h.data), lengthx);
+              for i = 1:length(h.data)
+                    mtx(i , i : (length(h.data)+(i-1))) = h.data; %Add h sequence to toeplit matrix
+                    mtxy(i , i : (length(y.data)+(i-1))) = y.data; %problem is somewhere around here
+                    %result = y.data * pinv(mtx)';
+              end
+               result = mtx \ mtxy;
+              sm = sum(result);
+            x = sequence(sm, y.offset - h.offset);
         end
     end
 end
