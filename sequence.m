@@ -106,8 +106,7 @@ classdef sequence
             n = x.offset + (0:length(x.data)-1); %adding the offset to the length of the matrix displays only the relevant values
             stem(n,x.data)
         end
-        
-        function y = conv(x, h) %Implementd;             TODO: Reduce execution time
+        function y = conv(x, h) %Implemented;             TODO: Reduce execution time
             % CONV Convolve two finite-length MatLab sequence objects, x
             % and h. RETURN sequence object, y.
             lengthy = length(x.data)+length(h.data)-1;
@@ -132,17 +131,22 @@ classdef sequence
         end
         
         function x = deconv(y,h)
-            lengthx = length(y.data)-length(h.data)+1;
-             mtx = zeros(length(h.data), lengthx); 
-             mtxy = zeros(length(h.data), lengthx);
-              for i = 1:length(h.data)
-                    mtx(i , i : (length(h.data)+(i-1))) = h.data; %Add h sequence to toeplit matrix
-                    mtxy(i , i : (length(y.data)+(i-1))) = y.data; %problem is somewhere around here
-                    %result = y.data * pinv(mtx)';
-              end
-               result = mtx \ mtxy;
-              sm = sum(result);
-            x = sequence(sm, y.offset - h.offset);
+            lengthx = length(y.data)-length(h.data)+1; %get the length of the 
+            xn = zeros(1,lengthx);
+            xn(1,1) = y.data(1,1) / h.data(1,1);
+            hh = zeros(1, lengthx);
+            hh(1,1:length(h.data)) = h.data;
+            for n = 2 : lengthx
+                temp = 0;
+                k = 1;
+                while (k < n)
+                    temp = temp + (xn(1,k)*hh(1,n - (k-1) ));
+                    k = k+1;
+                end
+                
+                xn(1,n) = ( y.data(1,n) - temp ) / h.data(1,1); 
+            end
+            x = sequence(xn, y.offset - h.offset);
         end
     end
 end
