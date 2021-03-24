@@ -21,3 +21,5 @@ Sequence.m & conv_rt.m must be placed in the current directory to use the functi
         Convolution of x and y sequences.
 # deconv(y,h)
         Deconvolution of x an y sequences.
+# dtft(x,w)
+	Evaluate the DTFT of Matlab sequence object, x, at radial frequencies given by double array w. Returns a double array, y. 

@@ -148,5 +148,33 @@ classdef sequence
             end
             x = sequence(xn, y.offset - h.offset);
         end
+        
+        function y = even(x)
+            even = (x.data + (-x.data))/2;
+            y = sequence(even,x.offset); 
+        end
+        
+        function y = odd(x)
+           y = sequence(x); 
+        end
+        
+        function y = trim(x)
+           y = sequence(x); 
+        end
+        
+        function y = dtft(x, w)
+            
+           y = sequence(x,w); 
+        end
+        
+        function y = dtft2(x, w)
+            
+           y = sequence(x,w); 
+        end
+        
+        function y = mag_phase(x)
+            
+           y = sequence(x,w); 
+        end
     end
 end
