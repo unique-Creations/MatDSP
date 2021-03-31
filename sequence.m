@@ -106,7 +106,7 @@ classdef sequence
             n = x.offset + (0:length(x.data)-1); %adding the offset to the length of the matrix displays only the relevant values
             stem(n,x.data)
         end
-        function y = conv(x, h) %Implemented;             TODO: Reduce execution time
+        function y = conv(x, h)
             % CONV Convolve two finite-length MatLab sequence objects, x
             % and h. RETURN sequence object, y.
             lengthy = length(x.data)+length(h.data)-1;
@@ -131,50 +131,50 @@ classdef sequence
         end
         
         function x = deconv(y,h)
-            lengthx = length(y.data)-length(h.data)+1; %get the length of the 
-            xn = zeros(1,lengthx);
-            xn(1,1) = y.data(1,1) / h.data(1,1);
-            hh = zeros(1, lengthx);
-            hh(1,1:length(h.data)) = h.data;
-            for n = 2 : lengthx
-                temp = 0;
-                k = 1;
-                while (k < n)
-                    temp = temp + (xn(1,k)*hh(1,n - (k-1) ));
+            lengthx = length(y.data)-length(h.data)+1; %get the length of x 
+            xn = zeros(1,lengthx); %create a 1 * lengthx matrix
+            xn(1,1) = y.data(1,1) / h.data(1,1); % x[0] = y[0] / h[0]
+            hh = zeros(1, lengthx); %prepare a zero matrix with the length of x
+            hh(1,1:length(h.data)) = h.data; %place h into the zero matrix
+            for n = 2 : lengthx 
+                temp = 0; 
+                k = 1; 
+                while (k < n) 
+                    temp = temp + (xn(1,k)*hh(1,n - (k-1) )); %retrieve summation of x[k]*h[n-k] from 0 : n-1
                     k = k+1;
                 end
-                
-                xn(1,n) = ( y.data(1,n) - temp ) / h.data(1,1); 
+                xn(1,n) = ( y.data(1,n) - temp ) / h.data(1,1); %x[n] = (y[n] - summation of x[k]*h[n-k] from 0 : n-1 ) / h[0]
             end
             x = sequence(xn, y.offset - h.offset);
         end
         
-        function y = even(x)
-            even = (x.data + (-x.data))/2;
-            y = sequence(even,x.offset); 
+         function y = even(x)
+            negx = flip(x); % x[-n]
+            even = plus(x,negx); % x[n] + x[-n]
+            xe = even.data / 2; % (x[n] + x[-n]) / 2
+            y = sequence(xe,negx.offset); 
         end
         
         function y = odd(x)
-           y = sequence(x); 
+            negx = flip(x); % x[-n]
+            odd = minus(x,negx); % x[n] + x[-n]
+            xo = odd.data / 2; % (x[n] + x[-n]) / 2
+            y = sequence(xo,negx.offset); 
         end
         
         function y = trim(x)
-           y = sequence(x); 
+            oldx = length(x.data);
+            % Find the first nonzero index & last nonzero index
+            % then trim x.data
+            x.data = x.data(find(x.data,1,'first'):find(x.data,1,'last'));
+            x.offset = x.offset + (oldx-length(x.data));
+            y = sequence(x.data, x.offset); 
         end
-        
-        function y = dtft(x, w)
-            
-           y = sequence(x,w); 
-        end
-        
-        function y = dtft2(x, w)
-            
-           y = sequence(x,w); 
-        end
-        
-        function y = mag_phase(x)
-            
-           y = sequence(x,w); 
+        function y = conj(x)
+            r = real(x.data);
+            im = -imag(x.data);
+            conjugate = r + (1j*im);
+            y = sequence(conjugate,x.offset);
         end
     end
 end
